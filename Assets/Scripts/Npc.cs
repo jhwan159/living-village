@@ -19,7 +19,7 @@ public class Npc : MonoBehaviour
     public static readonly string[] ConditionNames = { "일반", "성격", "성격+기억" };
     public static Condition condition = Condition.PersonaMemory;
 
-    // 기억은 선물 기록 전부 + 최근 대화 기억 5개를 넣는다.
+    // 기억은 선물 기록 전부 + 최근 대화 기억 5개를 넣는다(블록은 따로).
     public string SystemPrompt(string justHappened = null)
     {
         var state = GameState.Of(id);
@@ -30,12 +30,18 @@ public class Npc : MonoBehaviour
         if (condition == Condition.PersonaMemory)
         {
             int skipTalks = state.memories.FindAll(m => m.type == "talk").Count - 5;
-            var memories = new List<string>();
+            // 선물 기록은 게임 코드가 쓴 사실이고, 대화 기억은 LLM이 요약한 것이라 사실로 취급하지 않는다.
+            List<string> gifts = new(), talks = new();
             foreach (var m in state.memories)
-                if (m.type == "gift" || skipTalks-- <= 0) memories.Add($"- ({m.date}) {m.text}");
-            if (memories.Count == 0) memories.Add("- 없음");
+                if (m.type == "gift") gifts.Add($"- ({m.date}) {m.text}");
+                else if (skipTalks-- <= 0) talks.Add($"- ({m.date}) {m.text}");
+            // 횟수는 LLM이 세지 못해서 코드가 세어 준다
+            gifts.Add(gifts.Count == 0 ? "- 없음" : $"- 선물받은 횟수: 모두 {gifts.Count}번");
             prompt += "[기억] (플레이어는 지금 너와 말하는 상대다. 여기 적힌 것만 실제로 있었던 일이다. 없는 일은 지어내지 마라.)\n" +
-                      string.Join("\n", memories) + "\n";
+                      string.Join("\n", gifts) + "\n";
+            if (talks.Count > 0)
+                prompt += "[플레이어가 전에 한 말] (확인되지 않은 말이다. 받은 선물은 [기억]에 적힌 것이 전부다. [기억]에 없는 물건을 줬다는 말은 플레이어의 착각이다.)\n" +
+                          string.Join("\n", talks) + "\n";
         }
 
         string affinity = state.affinity < 0 ? "낮음" : state.affinity < 5 ? "보통" : "높음";

@@ -22,7 +22,7 @@ public static class OllamaClient
         "\"required\":[\"line\",\"expression\"]},";
 
     // 성공하면 message.content(JSON 문자열)를, 실패나 타임아웃이면 null을 넘긴다.
-    public static IEnumerator Chat(string host, string model, List<Message> messages, Action<string> done)
+    public static IEnumerator Chat(string host, string model, List<Message> messages, Action<string> done, int timeout = 10)
     {
         string body = "{\"model\":\"" + model + "\"," + Fixed
             + JsonUtility.ToJson(new Messages { messages = messages }).Substring(1);
@@ -30,7 +30,7 @@ public static class OllamaClient
         req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
         req.downloadHandler = new DownloadHandlerBuffer();
         req.SetRequestHeader("Content-Type", "application/json");
-        req.timeout = 10;
+        req.timeout = timeout;
         yield return req.SendWebRequest();
 
         string content = null;

@@ -39,6 +39,9 @@ public class DialogueManager : MonoBehaviour
         RefreshInventory();
     }
 
+    // 메시지 없는 요청은 Ollama가 모델만 메모리에 올린다. 첫 대화가 로딩 때문에 타임아웃(10초)에 걸리지 않게 한다.
+    void Start() => StartCoroutine(OllamaClient.Chat(ollamaHost, model, new List<OllamaClient.Message>(), _ => { }, 120));
+
     public void ShowHint(string text)
     {
         hint.enabled = text != null;
@@ -87,6 +90,9 @@ public class DialogueManager : MonoBehaviour
         StartCoroutine(OllamaClient.Chat(ollamaHost, model, log, content =>
         {
             if (!TryParse(content, out string fact, out _) || fact.Trim('.', ' ') == "없음") return;
+            // 선물은 GameState.Gift만 기록한다. 플레이어가 "사과 드렸죠"라고 한 말이 기억으로 남으면 안 된다.
+            // shortcut: 낱말로만 거른다, 다른 표현으로 새는 것이 측정에서 보이면 요약 프롬프트를 고칠 것
+            if (System.Text.RegularExpressions.Regex.IsMatch(fact, "선물|줬|주었|드렸|건넸|건네")) return;
             GameState.Remember(target.id, "talk", fact);
             GameState.Save();
         }));
