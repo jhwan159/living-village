@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class DialogueManager : MonoBehaviour
 {
     public string ollamaHost = "http://localhost:11434";
-    public string model = "qwen3:8b";
+    public string model = "living-village"; // qwen3:8b + 한수·다래 말투 LoRA (tools/finetune). 원래 모델과 비교하려면 qwen3:8b
 
     // OllamaClient.Expressions와 같은 순서
     static readonly string[] ExpressionLabels = { "", " (기쁨)", " (슬픔)", " (화남)", " (놀람)" };

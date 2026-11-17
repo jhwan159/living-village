@@ -1,0 +1,22 @@
+# work/.venv/bin/python tools/finetune/train.py -c tools/finetune/lora.yaml  (tools/finetune 에서 실행)
+model: work/base-4bit-local
+train: true
+data: work/data
+adapter_path: work/adapters
+fine_tune_type: lora
+mask_prompt: true
+num_layers: 16
+lora_parameters:
+  rank: 8
+  scale: 20.0
+  dropout: 0.05
+batch_size: 4
+iters: 300          # 학습 603개 기준 약 2바퀴
+learning_rate: 5.0e-5
+steps_per_report: 10
+steps_per_eval: 50
+val_batches: -1
+save_every: 50
+max_seq_length: 2048
+grad_checkpoint: true
+seed: 7
