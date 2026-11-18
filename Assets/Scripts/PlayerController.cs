@@ -11,8 +11,6 @@ public class PlayerController : MonoBehaviour
 
     Transform cam;
     float pitch;
-    float bobTimer;
-    const float EyeHeight = 1.56f;
 
     void Awake() => cam = GetComponentInChildren<Camera>().transform;
     void OnEnable() => Cursor.lockState = CursorLockMode.Locked;
@@ -36,14 +34,8 @@ public class PlayerController : MonoBehaviour
             (k.wKey.isPressed ? 1 : 0) - (k.sKey.isPressed ? 1 : 0));
         Step(input, Time.deltaTime);
 
-        // 1인칭 몰입감: 걸을 때 자연스러운 보행 시점 흔들림(Head-bob)과 호흡 움직임
-        float moveAmount = Mathf.Clamp01(input.magnitude);
-        bobTimer += Time.deltaTime * (moveAmount > 0.1f ? 9.5f : 1.6f);
-        float bobY = Mathf.Sin(bobTimer) * (moveAmount > 0.1f ? 0.032f : 0.006f);
-        float bobX = Mathf.Cos(bobTimer * 0.5f) * (moveAmount > 0.1f ? 0.016f : 0.002f);
-        float roll = -input.x * 0.6f + Mathf.Sin(bobTimer * 0.5f) * (moveAmount * 0.35f);
-        cam.localPosition = new Vector3(bobX, EyeHeight + bobY, 0f);
-        cam.localRotation = Quaternion.Euler(pitch, 0f, roll);
+        // 시점 흔들림(head-bob/roll)은 멀미를 일으켜 뺐다. 눈높이는 빌더가 정한다.
+        cam.localRotation = Quaternion.Euler(pitch, 0f, 0f);
     }
 
     // 입력을 몸이 보는 방향 기준으로 바꿔 이동한다. 자가 점검에서도 직접 호출한다.
