@@ -172,8 +172,8 @@ public static class VillageBuilder
         cam.transform.SetParent(player.transform, false);
         cam.transform.localPosition = Vector3.up * 1.56f;
 
-        // 9. 인조이풍 실사 비율 NPC 배치 (애니메이션 컨트롤러 공유)
-        var idle = CharacterAnimator(BlenderModels + "Character_Hansu.fbx");
+        // 9. NPC 배치. 한수와 다래는 뼈대가 달라 애니메이션 컨트롤러를 따로 만든다.
+        var idle = CharacterAnimator(BlenderModels + "Character_Hansu.fbx", ControllerPath);
         var fisher = Npc("Character_Hansu", new Vector3(5.5f, 0, -15), idle);
         fisher.id = "hansu";
         fisher.likes = new[] { "shell" };
@@ -184,7 +184,8 @@ public static class VillageBuilder
         fisher.place = "어부의 오두막 앞";
         fisher.fallbackLines = new[] { "…음.", "뭐라고? 잘 못 들었다.", "바다나 보러 가야겠군.", "나중에 얘기하지." };
 
-        var florist = Npc("Character_Darae", new Vector3(-8.5f, 0, 4), idle);
+        var florist = Npc("Character_Darae", new Vector3(-8.5f, 0, 4),
+            CharacterAnimator(BlenderModels + "Character_Darae.fbx", "Assets/Animations/Character_Darae.controller"));
         florist.id = "darae";
         florist.likes = new[] { "flower" };
         florist.dislikes = new[] { "mushroom" };
@@ -222,6 +223,11 @@ public static class VillageBuilder
         cam.transform.position = new Vector3(-6.4f, 1.56f, 2.8f);
         cam.transform.rotation = Quaternion.LookRotation(new Vector3(-10.5f, 1.52f, 4.0f) - cam.transform.position);
         Screenshot(cam, "Logs/village_darae.png");
+        // 다래 캐릭터 클로즈업 프리뷰 (얼굴·헤어·앞치마·꽃바구니 컨셉 확인용)
+        var daraeLookDir = (florist.transform.position + florist.transform.forward * 1.45f) - florist.transform.position;
+        cam.transform.position = florist.transform.position + florist.transform.forward * 1.55f + Vector3.up * 1.25f;
+        cam.transform.rotation = Quaternion.LookRotation((florist.transform.position + Vector3.up * 1.15f) - cam.transform.position);
+        Screenshot(cam, "Logs/village_darae_closeup.png");
         // 한수와 어부 오두막·항구 1인칭 시점 프리뷰
         cam.transform.position = new Vector3(3.4f, 1.56f, -13.8f);
         cam.transform.rotation = Quaternion.LookRotation(new Vector3(7.5f, 1.52f, -15.2f) - cam.transform.position);
@@ -259,6 +265,8 @@ public static class VillageBuilder
         PbrMats["Mat_FlowerRed"] = PbrMat("Mat_FlowerRed", new Color(0.90f, 0.22f, 0.26f), 0.48f, 0f);
         PbrMats["Mat_FlowerYellow"] = PbrMat("Mat_FlowerYellow", new Color(0.96f, 0.78f, 0.18f), 0.48f, 0f);
         PbrMats["Mat_FlowerPurple"] = PbrMat("Mat_FlowerPurple", new Color(0.65f, 0.36f, 0.82f), 0.48f, 0f);
+        PbrMats["Mat_FlowerPink"] = PbrMat("Mat_FlowerPink", new Color(0.95f, 0.56f, 0.68f), 0.48f, 0f);
+        PbrMats["Mat_FlowerWhite"] = PbrMat("Mat_FlowerWhite", new Color(0.97f, 0.96f, 0.93f), 0.48f, 0f);
         PbrMats["Mat_TerracottaPot"] = PbrMat("Mat_TerracottaPot", new Color(0.76f, 0.42f, 0.28f), 0.38f, 0f);
         PbrMats["Mat_Water"] = PbrMat("Mat_Water", new Color(0.14f, 0.44f, 0.58f), 0.94f, 0.15f, null, "Water_Normal.png", 1.1f, 6f);
         PbrMats["Mat_ShellPearl"] = PbrMat("Mat_ShellPearl", new Color(0.96f, 0.86f, 0.82f), 0.78f, 0.12f);
@@ -276,15 +284,24 @@ public static class VillageBuilder
         PbrMats["Mat_Character_Hansu_EyeWhite"] = PbrMat("Mat_Character_Hansu_EyeWhite", new Color(0.97f, 0.97f, 0.98f), 0.88f, 0f);
         PbrMats["Mat_Character_Hansu_Lip"] = PbrMat("Mat_Character_Hansu_Lip", new Color(0.72f, 0.48f, 0.42f), 0.50f, 0f);
 
-        PbrMats["Mat_Character_Darae_Skin"] = PbrMat("Mat_Character_Darae_Skin", new Color(0.95f, 0.79f, 0.71f), 0.48f, 0f);
-        PbrMats["Mat_Character_Darae_Hair"] = PbrMat("Mat_Character_Darae_Hair", new Color(0.28f, 0.16f, 0.11f), 0.52f, 0f);
-        PbrMats["Mat_Character_Darae_Top"] = PbrMat("Mat_Character_Darae_Top", new Color(0.96f, 0.93f, 0.88f), 0.32f, 0f);
-        PbrMats["Mat_Character_Darae_Outer"] = PbrMat("Mat_Character_Darae_Outer", new Color(0.45f, 0.62f, 0.48f), 0.35f, 0f);
-        PbrMats["Mat_Character_Darae_Bottom"] = PbrMat("Mat_Character_Darae_Bottom", new Color(0.84f, 0.77f, 0.67f), 0.30f, 0f);
-        PbrMats["Mat_Character_Darae_Shoes"] = PbrMat("Mat_Character_Darae_Shoes", new Color(0.32f, 0.20f, 0.14f), 0.52f, 0f);
-        PbrMats["Mat_Character_Darae_EyeDark"] = PbrMat("Mat_Character_Darae_EyeDark", new Color(0.06f, 0.04f, 0.03f), 0.94f, 0f);
-        PbrMats["Mat_Character_Darae_EyeWhite"] = PbrMat("Mat_Character_Darae_EyeWhite", new Color(0.98f, 0.98f, 0.99f), 0.90f, 0f);
-        PbrMats["Mat_Character_Darae_Lip"] = PbrMat("Mat_Character_Darae_Lip", new Color(0.85f, 0.46f, 0.44f), 0.58f, 0f);
+        // 다래: 애니메이션풍 평면 색(텍스처 없음, 낮은 광택) + 반전 껍질 외곽선. 값은 tools/build_inzoi_assets.py와 같게 유지.
+        // 다래 텍스처는 tools/paint_darae_textures.py가 색까지 칠해 만든다. 색이 두 번 곱해지지 않게 틴트는 흰색(신발만 어둡게).
+        // 타일링·노멀 세기는 tools/preview_darae_textures.py의 값과 같다.
+        PbrMats["Mat_Character_Darae_Skin"] = PbrMat("Mat_Character_Darae_Skin", Color.white, 0.20f, 0f, "Darae_Skin_Albedo.png");
+        PbrMats["Mat_Character_Darae_Face"] = PbrMat("Mat_Character_Darae_Face", Color.white, 0.20f, 0f, "Darae_Face_Albedo.png", null, 1f, 1f, null, false);
+        PbrMats["Mat_Character_Darae_Hair"] = PbrMat("Mat_Character_Darae_Hair", Color.white, 0.25f, 0f, "Darae_Hair_Albedo.png", "Darae_Hair_Normal.png", 0.24f, 5f, null, true, 0.76f);
+        PbrMats["Mat_Character_Darae_Top"] = PbrMat("Mat_Character_Darae_Top", Color.white, 0.10f, 0f, "Darae_Cotton_Albedo.png", "Darae_Cotton_Normal.png", 0.22f, 3f);
+        PbrMats["Mat_Character_Darae_Outer"] = PbrMat("Mat_Character_Darae_Outer", Color.white, 0.10f, 0f, "Darae_Knit_Albedo.png", "Darae_Knit_Normal.png", 0.40f, 7f);
+        PbrMats["Mat_Character_Darae_Bottom"] = PbrMat("Mat_Character_Darae_Bottom", Color.white, 0.10f, 0f, "Darae_Linen_Albedo.png", "Darae_Linen_Normal.png", 0.24f, 5f);
+        PbrMats["Mat_Character_Darae_Apron"] = PbrMat("Mat_Character_Darae_Apron", Color.white, 0.10f, 0f, "Darae_Apron_Albedo.png", "Darae_Apron_Normal.png", 0.29f, 2.5f);
+        PbrMats["Mat_Character_Darae_Belt"] = PbrMat("Mat_Character_Darae_Belt", Color.white, 0.30f, 0f, "Darae_Leather_Albedo.png", "Darae_Leather_Normal.png", 0.38f, 4f);
+        PbrMats["Mat_Character_Darae_Shoes"] = PbrMat("Mat_Character_Darae_Shoes", new Color(0.73f, 0.72f, 0.82f), 0.30f, 0f, "Darae_Leather_Albedo.png", "Darae_Leather_Normal.png", 0.38f, 3f);
+        PbrMats["Mat_Character_Darae_Eye"] = PbrMat("Mat_Character_Darae_Eye", Color.white, 0.40f, 0f, "Darae_EyeAtlas_Albedo.png", null, 1f, 1f, null, false);
+        PbrMats["Mat_Character_Darae_EyeDark"] = PbrMat("Mat_Character_Darae_EyeDark", new Color(0.12f, 0.07f, 0.06f), 0.40f, 0f);
+        PbrMats["Mat_Character_Darae_EyeWhite"] = PbrMat("Mat_Character_Darae_EyeWhite", new Color(1.00f, 1.00f, 1.00f), 0.40f, 0f);
+        PbrMats["Mat_Character_Darae_Lip"] = PbrMat("Mat_Character_Darae_Lip", new Color(0.86f, 0.42f, 0.40f), 0.20f, 0f);
+        PbrMats["Mat_Character_Darae_Kraft"] = PbrMat("Mat_Character_Darae_Kraft", Color.white, 0.10f, 0f, "Darae_Kraft_Albedo.png", "Darae_Kraft_Normal.png", 0.42f, 1.25f);
+        PbrMats["Mat_Character_Darae_Outline"] = PbrMat("Mat_Character_Darae_Outline", new Color(0.19f, 0.11f, 0.08f), 0f, 0f);
     }
 
     static Texture2D LoadTex(string file, bool isNormal, bool repeat = true)
@@ -305,20 +322,22 @@ public static class VillageBuilder
     }
 
     static Material PbrMat(string name, Color color, float smoothness, float metallic,
-        string albedoFile = null, string normalFile = null, float bumpScale = 1f, float tiling = 1f, Color? emission = null)
+        string albedoFile = null, string normalFile = null, float bumpScale = 1f, float tiling = 1f, Color? emission = null,
+        bool repeat = true, float tilingY = 0f)
     {
         var mat = Mat(name, color);
         mat.SetFloat("_Smoothness", smoothness);
         mat.SetFloat("_Metallic", metallic);
-        var scale = new Vector2(tiling, tiling);
+        var scale = new Vector2(tiling, tilingY > 0f ? tilingY : tiling);
         mat.mainTextureScale = scale;
         mat.SetTextureScale("_BaseMap", scale);
         if (albedoFile != null)
         {
-            var tex = LoadTex(albedoFile, false);
+            var tex = LoadTex(albedoFile, false, repeat);
             mat.SetTexture("_BaseMap", tex);
             mat.mainTexture = tex;
         }
+        else mat.SetTexture("_BaseMap", null); // 이미 있는 .mat에 남은 예전 텍스처를 지운다
         if (normalFile != null)
         {
             var norm = LoadTex(normalFile, true);
@@ -326,6 +345,11 @@ public static class VillageBuilder
             mat.SetTextureScale("_BumpMap", scale);
             mat.SetFloat("_BumpScale", bumpScale);
             mat.EnableKeyword("_NORMALMAP");
+        }
+        else
+        {
+            mat.SetTexture("_BumpMap", null);
+            mat.DisableKeyword("_NORMALMAP");
         }
         if (emission.HasValue)
         {
@@ -491,7 +515,7 @@ public static class VillageBuilder
         return b;
     }
 
-    static AnimatorController CharacterAnimator(string fbxPath)
+    static AnimatorController CharacterAnimator(string fbxPath, string controllerPath)
     {
         var importer = (ModelImporter)AssetImporter.GetAtPath(fbxPath);
         importer.animationType = ModelImporterAnimationType.Generic;
@@ -505,8 +529,8 @@ public static class VillageBuilder
         var walkClip = all.First(c => c.name.EndsWith("walk"));
 
         Directory.CreateDirectory("Assets/Animations");
-        AssetDatabase.DeleteAsset(ControllerPath);
-        var ctrl = AnimatorController.CreateAnimatorControllerAtPath(ControllerPath);
+        AssetDatabase.DeleteAsset(controllerPath);
+        var ctrl = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
         ctrl.AddParameter("Speed", AnimatorControllerParameterType.Float);
         var sm = ctrl.layers[0].stateMachine;
         var idle = sm.AddState("Idle");
