@@ -14,5 +14,6 @@
 *.slnx
 *.user
 *.blend1
+*.blend1.meta
 .DS_Store
 /tools/finetune/work/

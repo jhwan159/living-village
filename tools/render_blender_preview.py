@@ -69,6 +69,25 @@ if "Building_FisherHut_Hansu" in bpy.data.objects:
     b.location = (12, 15, 0)
     b.rotation_euler = (0, 0, -math.pi * 0.5)
 
+# Import Darae in front of her Flower Shop (-8.5, -4.0, 0) facing East/South-East toward the plaza
+bpy.ops.import_scene.fbx(filepath=os.path.abspath("Assets/Blender/Models/Character_Darae.fbx"))
+for o in bpy.context.selected_objects:
+    if o.animation_data:
+        o.animation_data_clear()
+    if o.type == "ARMATURE" or o.parent is None:
+        o.location = (-8.5, -4.0, 0.0)
+        # Imported FBX armature has X=90deg rotation; rotate Z so +Z local faces camera at (-6.2, -2.8)
+        o.rotation_euler = (math.pi * 0.5, 0.0, math.radians(118))
+
+# Fix any relative image paths from FBX import
+for img in bpy.data.images:
+    if img.filepath:
+        bname = os.path.basename(img.filepath)
+        cand = os.path.abspath(os.path.join("Assets/Blender/Textures", bname))
+        if os.path.exists(cand):
+            img.filepath = cand
+            img.reload()
+
 # Save updated complete master scene
 bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath("Assets/Blender/InzoiVillage.blend"))
 
@@ -85,9 +104,17 @@ cam_obj.rotation_euler = (math.radians(86), 0, math.radians(192))
 scene.render.filepath = os.path.abspath("Logs/blender_plaza.png")
 bpy.ops.render.render(write_still=True)
 
-# Render 2: Darae's Boutique Flower Shop
-cam_obj.location = (-6.2, -2.5, 1.56)
-cam_obj.rotation_euler = (math.radians(87), 0, math.radians(102))
+# Render 2: Darae's Boutique Flower Shop + Darae
+cam_obj.location = (-6.2, -2.8, 1.50)
+cam_obj.rotation_euler = (math.radians(88), 0, math.radians(104))
 scene.render.filepath = os.path.abspath("Logs/blender_flowershop.png")
+bpy.ops.render.render(write_still=True)
+
+# Render 3: Close-up Portrait & Full-Concept View of Darae in front of Flower Shop
+scene.cycles.samples = 48
+cam_data.lens = 35  # Portrait lens showing full head + upper body + apron + flower basket
+cam_obj.location = (-7.05, -3.22, 1.24)
+cam_obj.rotation_euler = (math.radians(89), 0, math.radians(118))
+scene.render.filepath = os.path.abspath("Logs/blender_darae_portrait.png")
 bpy.ops.render.render(write_still=True)
 print("Blender preview renders completed.")
